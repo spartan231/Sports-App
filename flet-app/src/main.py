@@ -2,6 +2,7 @@ import flet as ft
 
 from signin import signin_view
 from signup import signup_view
+from supabase_client import supabase
 
 
 def main(page: ft.Page):
@@ -9,10 +10,21 @@ def main(page: ft.Page):
 
     def route_change(e=None):
         page.views.clear()
-        page.views.append(signin_view(page))
-        if page.route == "/signup":
-            page.views.append(signup_view(page))
+        if page.route == "/home":
+            # Temporary placeholder until home screen is implemented
+            page.views.append(ft.View(route="/home", controls=[
+                ft.Text("Signed in!"),
+                ft.Button("Sign Out", on_click=sign_out),
+            ]))
+        else:
+            page.views.append(signin_view(page))
+            if page.route == "/signup":
+                page.views.append(signup_view(page))
         page.update()
+
+    async def sign_out(e):
+        supabase.auth.sign_out()
+        await page.push_route("/")
 
     async def view_pop(e):
         page.views.pop()
