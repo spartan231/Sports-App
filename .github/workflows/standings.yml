@@ -1,0 +1,17 @@
+name: Daily standings
+
+on:
+  schedule:
+    - cron: "0 10 * * *"  # 10:00 UTC, every day
+  workflow_dispatch:       # adds a "Run workflow" button for manual runs
+
+jobs:
+  standings:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv run supabase/scripts/fetch_standings.py
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
