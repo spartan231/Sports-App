@@ -14,28 +14,21 @@ Run from the repo root: uv run supabase/scripts/populate_teams.py
 import os
 from datetime import datetime, timezone
 
-import httpx
 from dotenv import load_dotenv, find_dotenv
 from supabase import create_client
 
-ESPN = "https://site.api.espn.com/apis"
-
-
-def get(url):
-    resp = httpx.get(url, timeout=15)
-    resp.raise_for_status()
-    return resp.json()
+import espn
 
 
 def team_details(league):
     """All teams in a league from ESPN, keyed by ESPN id."""
-    data = get(f"{ESPN}/site/v2/sports/football/{league}/teams?limit=1000")
+    data = espn.get(f"/site/v2/sports/football/{league}/teams", {"limit": 1000})
     return {t["team"]["id"]: t["team"] for t in data["sports"][0]["leagues"][0]["teams"]}
 
 
 def nfl_conferences():
     """ESPN id -> division name, e.g. "AFC East"."""
-    data = get(f"{ESPN}/site/v2/sports/football/nfl/groups")
+    data = espn.get("/site/v2/sports/football/nfl/groups")
     return {
         team["id"]: division["name"]
         for conference in data["groups"]
@@ -46,7 +39,7 @@ def nfl_conferences():
 
 def fbs_conferences():
     """ESPN id -> conference name, for FBS teams only (group 80)."""
-    data = get(f"{ESPN}/v2/sports/football/college-football/standings?group=80")
+    data = espn.get("/v2/sports/football/college-football/standings", {"group": 80})
     result = {}
     for conference in data["children"]:
         # Some conferences (Sun Belt) split their standings into divisions
