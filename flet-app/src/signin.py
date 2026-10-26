@@ -1,11 +1,22 @@
 import flet as ft
+from supabase import AuthApiError
 
-def verify_credentials(email, password):
-    print(email, password)
+from supabase_client import supabase
+
 
 def signin_view(page: ft.Page) -> ft.View:
     email = ft.TextField(label="Email", width=400)
     password = ft.TextField(label="Password", width=400, password=True, can_reveal_password=True)
+    error = ft.Text(color=ft.Colors.RED_400)
+
+    async def sign_in(e):
+        try:
+            supabase.auth.sign_in_with_password({"email": email.value, "password": password.value})
+        except AuthApiError as err:
+            error.value = err.message
+            error.update()
+            return
+        await page.push_route("/home")
 
     async def go_to_signup(e):
         await page.push_route("/signup")
@@ -27,7 +38,8 @@ def signin_view(page: ft.Page) -> ft.View:
                         email,
                         password,
                         ft.Button("Sign In", width=400,
-                                  on_click=lambda e: verify_credentials(email.value, password.value)),
+                                  on_click=sign_in),
+                        error,
                         ft.Row(
                             alignment=ft.MainAxisAlignment.CENTER,
                             controls=[
