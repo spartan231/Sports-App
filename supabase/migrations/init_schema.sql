@@ -26,7 +26,7 @@ revoke update on public.profiles from authenticated;
 grant update (username) on public.profiles to authenticated;
 
 -- =========================================================
--- teams: populated from ESPN by scripts/populate_teams.py
+-- teams: populated from ESPN by supabase/scripts/populate_teams.py
 -- ESPN ids collide across leagues, so (league, espn_id) is the natural key
 -- followable = true for NFL + FBS teams (set by populate script);
 -- FCS opponents added by the score poller stay false so they show in
