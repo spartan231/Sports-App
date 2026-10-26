@@ -4,11 +4,27 @@ from signin import signin_view
 from signup import signup_view
 from supabase_client import supabase
 
+PUBLIC_ROUTES = ["/", "/signup"]
 
 def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode.DARK
 
+    def is_logged_in() -> bool:
+        try:
+            return supabase.auth.get_user() is not None
+        except Exception:
+            return False
+
+
     def route_change(e=None):
+        route = page.route
+
+        if route not in PUBLIC_ROUTES and not is_logged_in():
+            route = "/"
+        elif route in PUBLIC_ROUTES and is_logged_in():
+            route = "/home"
+        page.route = route
+
         page.views.clear()
         if page.route == "/home":
             # Temporary placeholder until home screen is implemented
